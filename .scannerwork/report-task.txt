@@ -1,0 +1,6 @@
+projectKey=Test-Monorepo
+serverUrl=http://localhost:9000
+serverVersion=25.3.0.104237
+dashboardUrl=http://localhost:9000/dashboard?id=Test-Monorepo
+ceTaskId=30d3efb8-b914-411a-8067-610ddf5c6323
+ceTaskUrl=http://localhost:9000/api/ce/task?id=30d3efb8-b914-411a-8067-610ddf5c6323

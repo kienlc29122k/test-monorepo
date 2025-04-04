@@ -1,0 +1,31 @@
+name: SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main # or your main branch
+  pull_request:
+    branches:
+      - main # or your main branch
+
+jobs:
+  sonar:
+    runs-on: self-hosted # Use your self-hosted runner
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install unzip
+        run: sudo apt-get install -y unzip
+
+      - name: Setup SonarScanner
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.sources=.
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
