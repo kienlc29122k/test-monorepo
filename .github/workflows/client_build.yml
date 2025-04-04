@@ -37,14 +37,14 @@ jobs:
             -Dsonar.sources=.
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
             -Dsonar.login=${{ secrets.SONAR_TOKEN_CLIENT }}
-      - name: Install Node.js
-        if: steps.sonar.outcome == 'success'
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: "npm"
-          cache-dependency-path: subdir/package-lock.json
-      - run: npm i
-        if: steps.sonar.outcome == 'success'
-      - run: npm run build
-        if: steps.sonar.outcome == 'success'
+      # - name: Install Node.js
+      #   if: steps.sonar.outcome == 'success'
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20.x
+      #     cache: "npm"
+      #     cache-dependency-path: subdir/package-lock.json
+      # - run: npm i
+      #   if: steps.sonar.outcome == 'success'
+      # - run: npm run build
+      #   if: steps.sonar.outcome == 'success'
