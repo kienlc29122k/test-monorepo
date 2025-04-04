@@ -26,6 +26,7 @@ jobs:
       - name: Install unzip
         run: sudo apt-get install -y unzip
       - name: Setup SonarScanner
+        id: sonar
         uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ADMIN }}
@@ -37,10 +38,13 @@ jobs:
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
             -Dsonar.login=${{ secrets.SONAR_TOKEN_ADMIN }}
       - name: Install Node.js
+        if: steps.sonar.outcome == 'success'
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: "npm"
           cache-dependency-path: subdir/package-lock.json
       - run: npm i
+        if: steps.sonar.outcome == 'success'
       - run: npm run build
+        if: steps.sonar.outcome == 'success'
