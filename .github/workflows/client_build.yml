@@ -3,16 +3,16 @@ name: Build Client
 on:
   push:
     branches: ["main", "dev"]
-    paths:
-      - apps/client/**
-      - packages/**
-      - .github/workflows/**
+    # paths:
+    #   - apps/client/**
+    #   - packages/**
+    #   - .github/workflows/**
   pull_request:
     branches: ["main", "dev"]
-    paths:
-      - apps/client/**
-      - packages/**
-      - .github/workflows/**
+    # paths:
+    #   - apps/client/**
+    #   - packages/**
+    #   - .github/workflows/**
 
 jobs:
   build:
@@ -29,14 +29,14 @@ jobs:
         id: sonar
         uses: SonarSource/sonarqube-scan-action@v4
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLIENT }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
             -Dsonar.projectKey=mono-client
             -Dsonar.sources=.
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-            -Dsonar.login=${{ secrets.SONAR_TOKEN_CLIENT }}
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
       # - name: Install Node.js
       #   if: steps.sonar.outcome == 'success'
       #   uses: actions/setup-node@v4
