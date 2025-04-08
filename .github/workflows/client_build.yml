@@ -3,21 +3,21 @@ name: Build Client
 on:
   push:
     branches: ["main", "dev"]
-    # paths:
-    #   - apps/client/**
-    #   - packages/**
-    #   - .github/workflows/**
+    paths:
+      - apps/client/**
+      - packages/**
+      - .github/workflows/**
   pull_request:
     branches: ["main", "dev"]
-    # paths:
-    #   - apps/client/**
-    #   - packages/**
-    #   - .github/workflows/**
+    paths:
+      - apps/client/**
+      - packages/**
+      - .github/workflows/**
 
 jobs:
   build:
     name: Build Client
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v4
