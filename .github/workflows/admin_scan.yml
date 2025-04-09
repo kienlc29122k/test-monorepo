@@ -38,6 +38,10 @@ jobs:
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
             -Dsonar.login=${{ secrets.SONAR_TOKEN_ADMIN }}
 
+      # Install jq
+      - name: Install jq
+        run: sudo apt-get install jq -y
+
       # Check the Quality Gate status.
       - name: SonarQube Quality Gate check
         id: sonarqube-quality-gate-check
