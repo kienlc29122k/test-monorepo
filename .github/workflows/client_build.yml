@@ -23,28 +23,34 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Install unzip
-        run: sudo apt-get install -y unzip
-      - name: Setup SonarScanner
-        id: sonar
-        uses: SonarSource/sonarqube-scan-action@v4
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLIENT }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          args: >
-            -Dsonar.projectKey=mono-client
-            -Dsonar.sources=.
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-            -Dsonar.login=${{ secrets.SONAR_TOKEN_CLIENT }}
-      # - name: Install Node.js
-      #   if: steps.sonar.outcome == 'success'
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 20.x
-      #     cache: "npm"
-      #     cache-dependency-path: subdir/package-lock.json
-      # - run: npm i
-      #   if: steps.sonar.outcome == 'success'
-      # - run: npm run build
-      #   if: steps.sonar.outcome == 'success'
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./apps/client
+
+      - name: Build client
+        run: npm run build
+        working-directory: ./apps/client
+
+  trigger-scan:
+    needs: build
+    runs-on: self-hosted
+    if: success()
+    steps:
+      - name: Trigger Scan Workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'client_scan.yml',
+              ref: context.ref
+            })
