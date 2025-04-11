@@ -26,4 +26,3 @@ jobs:
       project-base-dir: ./apps/admin
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ADMIN }}
-      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

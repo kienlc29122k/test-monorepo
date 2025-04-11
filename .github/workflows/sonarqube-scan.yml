@@ -9,10 +9,12 @@ on:
       project-base-dir:
         required: true
         type: string
+      sonar-host-url:
+        required: false
+        type: string
+        default: ${{ vars.SONAR_HOST_URL }}
     secrets:
       SONAR_TOKEN:
-        required: true
-      SONAR_HOST_URL:
         required: true
 
 jobs:
@@ -29,13 +31,13 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
         with:
           args: >
             -Dsonar.projectKey=${{ inputs.project-key }}
             -Dsonar.sources=.
             -Dsonar.projectBaseDir=${{ inputs.project-base-dir }}
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+            -Dsonar.host.url=${{ inputs.sonar-host-url }}
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
       - name: SonarQube Quality Gate Status
@@ -46,4 +48,4 @@ jobs:
           scanMetadataReportFile: ${{ inputs.project-base-dir }}/.scannerwork/report-task.txt
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
