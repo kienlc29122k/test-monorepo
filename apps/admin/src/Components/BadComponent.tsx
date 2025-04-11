@@ -1,104 +1,175 @@
 // Unused import to trigger dead code warning
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { z } from "zod";
+
+// Define types for data structure and props
+interface DataItem {
+  id: number;
+  type: string;
+  count: number;
+  status: string;
+}
+
+const ContentProps = z.object({
+  content: z.string().optional(),
+  onDataUpdate: z.function().args(z.array(z.any())).optional(),
+});
+
+type Props = z.infer<typeof ContentProps>;
 
 // No interface/type definitions for props
-export default function badcomponent(props) {
-  // Multiple state declarations that could be combined
-  const [data, setData] = useState();
-  const [loading, setLoading] = useState();
-  const [error, setError] = useState();
-  const [count, setCount] = useState(0);
-
-  // Unsafe any type
-  let unsafeVariable: any = null;
-
-  // Memory leak - no cleanup in useEffect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      console.log("Memory leak waiting to happen");
-    }, 1000);
-  }, []);
-
-  // Duplicate code block
-  const handleClick1 = () => {
-    if (data) {
-      const result = data.map((item) => item.id * 2);
-      console.log(result);
-    }
-  };
-
-  const handleClick2 = () => {
-    if (data) {
-      const result = data.map((item) => item.id * 2);
-      console.log(result);
-    }
-  };
-
-  // Cognitive complexity - nested conditions
-  const complexFunction = () => {
-    if (data) {
-      if (data.length > 0) {
-        for (let i = 0; i < data.length; i++) {
-          if (data[i].type === "special") {
-            while (data[i].count > 0) {
-              if (data[i].status === "active") {
-                console.log("Found it!");
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-
-  // Security hotspot - hardcoded credentials
-  const API_KEY = "abc123secretkey";
-  const PASSWORD = "admin123";
-
-  // Unsafe innerHTML usage
-  const renderHTML = () => {
-    return { __html: props.content };
-  };
-
-  // Multiple issues: no error handling, potential memory leak, unsafe fetch
-  useEffect(() => {
-    fetch("http://api.example.com/data")
-      .then((res) => res.json())
-      .then((data) => setData(data));
-  }, []);
-
-  // Empty catch block
-  try {
-    JSON.parse("{invalid json}");
-  } catch (e) {
-    // Silent catch - bad practice
+export const BadComponent = ({ content, onDataUpdate }: Props) => {
+  // Combined related state into a single object
+  interface DataState {
+    items: DataItem[];
+    isLoading: boolean;
+    error: Error | null;
   }
 
-  // Magic numbers
-  const calculateTotal = (quantity) => {
-    return quantity * 1.08 * 1.15 + 4.99;
+  const [dataState, setDataState] = useState<DataState>({
+    items: [],
+    isLoading: false,
+    error: null,
+  });
+
+  const [counter, setCounter] = useState(0);
+
+  // Constants moved to named variables
+  const TAX_RATE = 1.08;
+  const SERVICE_FEE = 1.15;
+  const SHIPPING_COST = 4.99;
+
+  // API endpoint moved to environment variable reference
+  const API_ENDPOINT = process.env.NEXT_PUBLIC_API_ENDPOINT || "";
+
+  // Proper error handling and cleanup in useEffect
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    const fetchData = async () => {
+      try {
+        setDataState((prev) => ({ ...prev, isLoading: true }));
+
+        const response = await fetch(API_ENDPOINT, {
+          signal: abortController.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setDataState((prev) => ({
+          items: data,
+          isLoading: false,
+          error: null,
+        }));
+
+        onDataUpdate?.(data);
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") {
+          setDataState((prev) => ({
+            ...prev,
+            isLoading: false,
+            error: error as Error,
+          }));
+        }
+      }
+    };
+
+    void fetchData();
+
+    return () => {
+      abortController.abort();
+    };
+  }, [onDataUpdate]);
+
+  // Simplified data processing with proper error handling
+  const processData = (items: DataItem[]) => {
+    return items.map((item) => ({
+      ...item,
+      processedId: item.id * 2,
+    }));
   };
 
+  // Simplified complex function with early returns
+  const findSpecialActiveItems = (items: DataItem[]): DataItem[] => {
+    if (!items?.length) return [];
+
+    return items.filter(
+      (item) =>
+        item.type === "special" && item.status === "active" && item.count > 0
+    );
+  };
+
+  const calculateTotal = (quantity: number): number => {
+    return quantity * TAX_RATE * SERVICE_FEE + SHIPPING_COST;
+  };
+
+  // Safe HTML rendering with sanitization
+  const sanitizedContent = content
+    ? content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    : "";
+
   return (
-    <div style={{ backgroundColor: "#ff0000", padding: "20px" }}>
-      {" "}
-      {/* Inline styles */}
-      {/* Accessibility issues - no aria labels */}
-      <img src="image.jpg" />
-      <button onClick={() => setCount(count + 1)}>Click me</button>
-      {/* Dangerous HTML rendering */}
-      <div dangerouslySetInnerHTML={renderHTML()} />
-      {/* Debug code left in */}
-      {console.log("Component rendered")}
-      {/* Accessibility issue - non-semantic HTML */}
-      <div onClick={() => alert("clicked")} style={{ cursor: "pointer" }}>
+    <section
+      className="bg-red-500 p-5"
+      role="region"
+      aria-label="Content Section"
+    >
+      {/* Proper image with alt text and loading optimization */}
+      <img
+        src="image.jpg"
+        alt="Descriptive alt text"
+        width={300}
+        height={200}
+        loading="lazy"
+      />
+
+      {/* Accessible button with proper event handling */}
+      <button
+        type="button"
+        onClick={() => setCounter((prev) => prev + 1)}
+        className="px-4 py-2 bg-blue-500 text-white rounded"
+        aria-label="Increment counter"
+      >
+        Count: {counter}
+      </button>
+
+      {/* Safe content rendering */}
+      <div className="mt-4">{sanitizedContent}</div>
+
+      {/* Semantic HTML with proper accessibility */}
+      <button
+        type="button"
+        onClick={() => window.alert("Clicked")}
+        className="cursor-pointer mt-4"
+        aria-label="Show alert"
+      >
         Click this text
+      </button>
+
+      {/* Unique IDs */}
+      <div id="content-1" className="mt-4">
+        Content 1
       </div>
-      {/* Duplicate IDs - HTML validity issue */}
-      <div id="duplicate">Content 1</div>
-      <div id="duplicate">Content 2</div>
-      {unsafeVariable && <div>{unsafeVariable}</div>}
-    </div>
+      <div id="content-2" className="mt-4">
+        Content 2
+      </div>
+
+      {/* Error state handling */}
+      {dataState.error && (
+        <div role="alert" className="text-red-500 mt-4">
+          Error: {dataState.error.message}
+        </div>
+      )}
+
+      {/* Loading state */}
+      {dataState.isLoading && (
+        <div role="status" className="mt-4">
+          Loading...
+        </div>
+      )}
+    </section>
   );
-}
+};
