@@ -19,28 +19,28 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
-    name: Build Admin
-    runs-on: self-hosted
+  # build:
+  #   name: Build Admin
+  #   runs-on: self-hosted
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "20"
+  #         cache: "npm"
 
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./apps/admin
+  #     - name: Install dependencies
+  #       run: npm ci
+  #       working-directory: ./apps/admin
 
-      # - name: Build client
-      #   run: npm run build
-      #   working-directory: ./apps/client
+  # - name: Build client
+  #   run: npm run build
+  #   working-directory: ./apps/client
 
   trigger-scan:
     name: Code Quality Scan
@@ -62,7 +62,8 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=mono-admin
-            -Dsonar.sources=./apps/admin
+            -Dsonar.sources=.
+            -Dsonar.projectBaseDir=./apps/admin
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
             -Dsonar.login=${{ secrets.SONAR_TOKEN_ADMIN }}
 
