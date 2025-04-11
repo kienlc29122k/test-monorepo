@@ -14,33 +14,14 @@ on:
       - packages/**
       - .github/workflows/**
 
-permissions:
-  contents: write
-  pull-requests: write
+# permissions:
+# contents: write
+# pull-requests: write
 
 jobs:
-  # build:
-  #   name: Build Admin
-  #   runs-on: self-hosted
-
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
-
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: "20"
-  #         cache: "npm"
-
-  #     - name: Install dependencies
-  #       run: npm ci
-  #       working-directory: ./apps/admin
-
-  # - name: Build client
-  #   run: npm run build
-  #   working-directory: ./apps/client
+  build:
+    name: Build Admin
+  #   Setup build configuration
 
   trigger-scan:
     name: Code Quality Scan
@@ -52,7 +33,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Scan the code quality
       - name: SonarQube Scan
         id: sonar
         uses: SonarSource/sonarqube-scan-action@v4
@@ -67,12 +47,12 @@ jobs:
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
             -Dsonar.login=${{ secrets.SONAR_TOKEN_ADMIN }}
 
-      # Check the Quality Gate status
-      - name: SonarQube Quality Gate check
+      - name: SonarQube Quality Gate Status
         id: sonarqube-quality-gate-check
         uses: sonarsource/sonarqube-quality-gate-action@master
         with:
           pollingTimeoutSec: 600
+          scanMetadataReportFile: target/sonar/report-task.txt
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ADMIN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
