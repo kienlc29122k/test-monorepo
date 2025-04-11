@@ -1,0 +1,77 @@
+name: Build Admin
+
+on:
+  push:
+    branches: ["main", "dev"]
+    paths:
+      - apps/admin/**
+      - packages/**
+      - .github/workflows/**
+  pull_request:
+    branches: ["main", "dev"]
+    paths:
+      - apps/admin/**
+      - packages/**
+      - .github/workflows/**
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    name: Build Admin
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./apps/admin
+
+      # - name: Build client
+      #   run: npm run build
+      #   working-directory: ./apps/client
+
+  trigger-scan:
+    name: Code Quality Scan
+    needs: build
+    runs-on: self-hosted
+    if: success()
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Scan the code quality
+      - name: SonarQube Scan
+        id: sonar
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ADMIN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=mono-admin
+            -Dsonar.sources=.
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+            -Dsonar.login=${{ secrets.SONAR_TOKEN_ADMIN }}
+
+      # Check the Quality Gate status
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          pollingTimeoutSec: 600
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ADMIN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
