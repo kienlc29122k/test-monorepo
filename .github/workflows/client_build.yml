@@ -43,18 +43,35 @@ jobs:
       #   working-directory: ./apps/client
 
   trigger-scan:
+    name: Code Quality Scan
     needs: build
     runs-on: self-hosted
     if: success()
     steps:
-      - name: Trigger Scan Workflow
-        uses: actions/github-script@v7
+      - uses: actions/checkout@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'client_scan.yml',
-              ref: context.ref
-            })
+          fetch-depth: 0
+
+      # Scan the code quality
+      - name: SonarQube Scan
+        id: sonar
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLIENT }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=mono-client
+            -Dsonar.sources=.
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+            -Dsonar.login=${{ secrets.SONAR_TOKEN_CLIENT }}
+
+      # Check the Quality Gate status
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          pollingTimeoutSec: 600
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLIENT }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
