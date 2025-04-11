@@ -26,3 +26,4 @@ jobs:
       project-base-dir: ./apps/client
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLIENT }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
