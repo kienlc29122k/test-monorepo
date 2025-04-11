@@ -44,9 +44,9 @@ jobs:
 
   trigger-scan:
     name: Code Quality Scan
-    needs: build
+    # needs: build
     runs-on: self-hosted
-    if: success()
+    # if: success()
     steps:
       - uses: actions/checkout@v4
         with:
