@@ -14,45 +14,16 @@ on:
       - packages/**
       - .github/workflows/**
 
-# permissions:
-# contents: write
-# pull-requests: write
-
 jobs:
   # build:
   # name: Build Client
   #   Setup build configuration
 
   trigger-scan:
-    name: Code Quality Scan
-    # needs: build
-    runs-on: self-hosted
-    # if: success()
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: SonarQube Scan
-        id: sonar
-        uses: SonarSource/sonarqube-scan-action@v4
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLIENT }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          args: >
-            -Dsonar.projectKey=mono-client
-            -Dsonar.sources=.
-            -Dsonar.projectBaseDir=./apps/client
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-            -Dsonar.login=${{ secrets.SONAR_TOKEN_CLIENT }}
-
-      - name: SonarQube Quality Gate Status
-        id: sonarqube-quality-gate-check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        with:
-          pollingTimeoutSec: 600
-          scanMetadataReportFile: ./apps/client/.scannerwork/report-task.txt
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLIENT }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    uses: ./.github/workflows/sonarqube-scan.yml
+    with:
+      project-key: mono-client
+      project-base-dir: ./apps/client
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLIENT }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
