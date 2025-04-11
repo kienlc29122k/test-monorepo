@@ -19,8 +19,8 @@ on:
 # pull-requests: write
 
 jobs:
-  build:
-    name: Build Client
+  # build:
+  # name: Build Client
   #   Setup build configuration
 
   trigger-scan:

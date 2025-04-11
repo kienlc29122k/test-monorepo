@@ -19,8 +19,8 @@ on:
 # pull-requests: write
 
 jobs:
-  build:
-    name: Build Admin
+  # build:
+  # name: Build Admin
   #   Setup build configuration
 
   trigger-scan:
