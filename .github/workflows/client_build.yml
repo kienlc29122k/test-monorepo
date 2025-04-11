@@ -62,7 +62,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=mono-client
-            -Dsonar.sources=.
+            -Dsonar.sources=./apps/client
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
             -Dsonar.login=${{ secrets.SONAR_TOKEN_CLIENT }}
 
