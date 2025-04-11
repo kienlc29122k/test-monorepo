@@ -73,7 +73,7 @@ const BadComponent: FC<ComponentProps> = ({
           setDataState((state) => ({
             ...state,
             isLoading: false,
-            error: error as Error,
+            error,
           }));
         }
       }
@@ -133,11 +133,7 @@ const BadComponent: FC<ComponentProps> = ({
         </div>
       )}
 
-      {dataState.isLoading && (
-        <div className="mt-4" role="status">
-          Loading...
-        </div>
-      )}
+      {dataState.isLoading && <div className="mt-4">Loading...</div>}
     </section>
   );
 };
